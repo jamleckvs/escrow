@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escrow | Trade with Confidence. Pay with Protection.</title>
+<style>
+  :root{--navy:#0B2545;--teal:#13795B;--bg:#f8fafc;--ink:#1e293b;--muted:#64748b;--line:#e2e8f0}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  .hero{background:var(--navy);color:#fff;text-align:center;padding:96px 24px}
+  .hero h1{font-size:clamp(2rem,5vw,3rem);margin:0 0 16px}
+  .hero p{max-width:640px;margin:0 auto;color:#cbd5e1}
+  .btns{margin-top:32px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{padding:12px 20px;border-radius:6px;font-weight:600;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.4)}
+  .btn.primary{background:var(--teal);border-color:var(--teal)}
+  section{max-width:960px;margin:0 auto;padding:56px 24px}
+  h2{margin:0 0 24px;font-size:1.5rem}
+  .steps{list-style:none;margin:0;padding:0;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+  .steps li{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px}
+  .num{display:flex;width:32px;height:32px;border-radius:50%;background:var(--teal);color:#fff;font-weight:700;align-items:center;justify-content:center;margin-bottom:8px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px;max-width:520px}
+  .row{display:flex;gap:8px;margin-bottom:12px}
+  input,select{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:6px;font-size:1rem;background:#fff}
+  .row select{width:auto}
+  button{width:100%;padding:12px;border:0;border-radius:6px;background:var(--navy);color:#fff;font-size:1rem;font-weight:600;cursor:pointer}
+  .line{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
+  .mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,Menlo,monospace}
+  .err{color:#b91c1c;margin:8px 0 0}
+  .note{font-size:.8rem;color:var(--muted);margin-top:16px}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .grid div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px}
+  .grid h3{margin:0 0 6px;font-size:1rem}
+  footer{background:#fff;border-top:1px solid var(--line);padding:24px;text-align:center;font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <h1>Trade with Confidence. Pay with Protection.</h1>
+  <p>Secure your transactions with a trusted escrow platform that protects buyers and sellers from payment and delivery risks.</p>
+  <div class="btns">
+    <a class="btn primary" href="#fees">Start a Transaction</a>
+    <a class="btn" href="#how">How Escrow Works</a>
+  </div>
+</header>
+
+<section id="how">
+  <h2>How escrow works</h2>
+  <ol class="steps">
+    <li><span class="num">1</span>Create transaction</li>
+    <li><span class="num">2</span>Buyer deposits funds</li>
+    <li><span class="num">3</span>Seller completes work</li>
+    <li><span class="num">4</span>Buyer approves delivery</li>
+    <li><span class="num">5</span>Funds are released</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Who it protects</h2>
+  <div class="grid">
+    <div><h3>For buyers</h3>Your money is held until the work or product is delivered and you approve it.</div>
+    <div><h3>For sellers</h3>You know the payment is secured before you start work.</div>
+    <div><h3>Dispute protection</h3>If something goes wrong, funds stay held while the dispute is reviewed.</div>
+    <div><h3>International payments</h3>Planned support: KES, USD, EUR, GBP, CAD and AUD.</div>
+  </div>
+</section>
+
+<section id="fees">
+  <h2>Fees</h2>
+  <div class="card">
+    <div class="row">
+      <input id="amount" aria-label="Amount" inputmode="decimal" value="1000.00">
+      <select id="currency" aria-label="Currency">
+        <option>KES</option><option selected>USD</option><option>EUR</option><option>GBP</option><option>CAD</option><option>AUD</option>
+      </select>
+    </div>
+    <div class="row">
+      <select id="payer" aria-label="Who pays the fee" style="width:100%">
+        <option value="buyer">Buyer pays the 2% fee</option>
+        <option value="seller">Seller pays the 2% fee</option>
+        <option value="split">Split between both</option>
+      </select>
+    </div>
+    <button id="calc" type="button">Calculate</button>
+    <p id="err" class="err" role="alert"></p>
+    <div id="out"></div>
+  </div>
+  <p class="note">This calculator is an estimate for display only. In a live platform, fees must be calculated on the server, and the payment provider's own processing fee is shown separately from the platform fee.</p>
+</section>
+
+<footer>
+  Escrow and payment services may require licensing or a regulated payment partner depending on your jurisdiction.
+  This site makes no claim of legal or regulatory compliance.
+</footer>
+
+<script>
+  // All money maths uses whole cents (integers) to avoid floating-point errors.
+  function toCents(text) {
+    var m = /^\s*(\d{1,12})(?:\.(\d{1,2}))?\s*$/.exec(text);
+    if (!m) return null;
+    return parseInt(m[1], 10) * 100 + parseInt(((m[2] || "") + "00").slice(0, 2), 10);
+  }
+  function fmt(cents, cur) {
+    var s = String(cents).padStart(3, "0");
+    var whole = s.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return cur + " " + whole + "." + s.slice(-2);
+  }
+  document.getElementById("calc").addEventListener("click", function () {
+    var err = document.getElementById("err"), out = document.getElementById("out");
+    var cur = document.getElementById("currency").value;
+    var payer = document.getElementById("payer").value;
+    var amount = toCents(document.getElementById("amount").value);
+    err.textContent = ""; out.innerHTML = "";
+    if (amount === null || amount <= 0) { err.textContent = "Enter a valid positive amount (up to 2 decimals)."; return; }
+    var fee = Math.floor((amount * 2 + 50) / 100);            // 2%, rounded half up
+    var buyerFee = payer === "buyer" ? fee : payer === "split" ? Math.round(fee / 2) : 0;
+    var sellerFee = fee - buyerFee;
+    var rows = [
+      ["Transaction amount", amount],
+      ["Platform fee (2%)", fee],
+      ["Payment-processing fee", 0],
+      ["Total charged to buyer", amount + buyerFee],
+      ["Protected in escrow", amount],
+      ["Released to seller", amount - sellerFee]
+    ];
+    out.innerHTML = rows.map(function (r) {
+      return '<div class="line"><span>' + r[0] + '</span><span class="mono">' + fmt(r[1], cur) + "</span></div>";
+    }).join("");
+  });
+  document.getElementById("calc").click();
+</script>
+</body>
+</html>
